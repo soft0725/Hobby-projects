@@ -2,6 +2,7 @@ import pymysql
 import re
 from datetime import datetime, timedelta
 
+from Private.mydb import return_db_info
 
 def get_schedule_datetime(match):
     hour = int(match.group(3))
@@ -19,16 +20,9 @@ def get_schedule_datetime(match):
 
     return schedule_datetime.replace(hour=hour, minute=minute)
 
-
 def upload(match, userid):
-    mydb = pymysql.connect(
-        host="localhost",
-        user="user",
-        password="passwod",
-        database="database"
-    )
+    mydb = return_db_info()
     
-    pattern = r'(오늘|내일|\d{4}년 \d{1,2}월 \d{1,2}일)\s*(오전|오후)?\s*(\d{1,2})시\s*(\d{1,2})분\s*(.+)?'
     if match:
         title = match.group(5) if match.group(5) else "없음"
         schedule_datetime = get_schedule_datetime(match)
@@ -40,4 +34,4 @@ def upload(match, userid):
         mycursor.execute(insert_query)
         mydb.commit()
         mydb.close()
-        print('업로드 완료')
+        print(f'{userid}가 {title}을 업로드함.')
