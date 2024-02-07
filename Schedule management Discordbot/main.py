@@ -1,8 +1,14 @@
 import discord
 from discord.ext import commands
+import pymysql
 
 from Commands.CallCommand import Call
 from Commands.MeetingCommand import Meeting
+from Private.mydb import return_db_info
+from Private.token import return_token
+
+mydb = return_db_info()
+TOKEN = return_token()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,4 +22,10 @@ async def on_ready():
     await client.add_cog(Meeting(client)) # 미팅 클래스
     print(f"BotName: {client.user.name}")
 
-client.run('TOKEN')
+@client.event
+async def on_shutdown():
+    if mydb.open:
+        mydb.close()
+        print('database shutdown')
+
+client.run(TOKEN)
